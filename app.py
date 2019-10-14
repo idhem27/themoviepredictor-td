@@ -11,6 +11,8 @@ import sys
 import argparse
 import csv
 from pprint import pprint
+import requests
+from bs4 import BeautifulSoup
 
 def setSqlMode(cnx, cursor):
     query = """SET sql_mode ="" """
@@ -42,8 +44,6 @@ def insertPersonQuery(firstname, lastname):
 
 def insertMovieQuery(title, original_title, synopsis, duration, origin_country, rating, production_budget, marketing_budget, release_date, is3d):
     return (f"INSERT INTO movies (title, original_title, synopsis, duration, origin_country, rating, production_budget, marketing_budget, release_date, is3d) VALUES ('{title}','{original_title}','{synopsis}','{duration}','{origin_country}','{rating}','{production_budget}','{marketing_budget}','{release_date}','{is3d}')")
-
-
 
 def find(table, id):
     cnx = connectToDatabase()
@@ -94,7 +94,7 @@ def insertMovie(title, original_title, synopsis,
     disconnectDatabase(cnx)
 
 def exportCSV(data, filename):
-  with open(f'{filename}.csv', 'a', newline='') as csvfile:
+  with open(f'{filename}.csv', 'w', newline='') as csvfile:
       dataWriter = csv.writer(csvfile)
       dataWriter.writerow(data[0].keys())
       for row in data:
@@ -150,6 +150,8 @@ if args.context == "people":
             printPerson(person)
     if args.action == 'insert':
         insertPerson(args.firstname, args.lastname)
+    if args.action == 'export':
+        exportCSV(findAll("people"),args.file)
 
 if args.context == "movies":
     if args.action == "list":  
