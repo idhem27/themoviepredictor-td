@@ -93,6 +93,13 @@ def insertMovie(title, original_title, synopsis,
     closeCursor(cursor)
     disconnectDatabase(cnx)
 
+def exportCSV(data, filename):
+  with open(f'{filename}.csv', 'a', newline='') as csvfile:
+      dataWriter = csv.writer(csvfile)
+      dataWriter.writerow(data[0].keys())
+      for row in data:
+        dataWriter.writerow(row.values())
+
 parser = argparse.ArgumentParser(description='Process MoviePredictor data')
 
 parser.add_argument('context', choices=['people', 'movies'], help='Le contexte dans lequel nous allons travailler')
@@ -118,6 +125,9 @@ insert_parser.add_argument('--production_budget', help= "Budget de production du
 insert_parser.add_argument('--marketing_budget', help="Budget promo du film à ajouter")
 insert_parser.add_argument('--release_date', help="Date de sortie en France du film à ajouter")
 insert_parser.add_argument('--is3d', help="Vrai si le film à ajouter est disponible en 3D")
+
+export_parser = action_subparser.add_parser('export', help='Exporte la table vers un fichier csv')
+export_parser.add_argument('--file', help='Nom du fichier')
 
 args = parser.parse_args()
 
@@ -153,3 +163,5 @@ if args.context == "movies":
             printMovie(movie)
     if args.action == 'insert':
         insertMovie(args.title, args.original_title, args.synopsis, args.duration, args.origin_country, args.rating, args.production_budget, args.marketing_budget, args.release_date, args.is3d)
+    if args.action == 'export':
+        exportCSV(findAll("movies"),args.file)
