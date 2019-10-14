@@ -31,6 +31,9 @@ def findQuery(table, id):
 def findAllQuery(table):
     return ("SELECT * FROM {}".format(table))
 
+def insertPersonQuery(firstname, lastname):
+    return (f"INSERT INTO people (firstname, lastname) VALUES ('{firstname}','{lastname}')")
+
 def find(table, id):
     cnx = connectToDatabase()
     cursor = createCursor(cnx)
@@ -56,17 +59,32 @@ def printPerson(person):
 def printMovie(movie):
     print("#{}: {} released on {}".format(movie['id'], movie['title'], movie['release_date']))
 
+def insertPerson(firstname, lastname):
+    cnx = connectToDatabase()
+    cursor = createCursor(cnx)
+    query = insertPersonQuery(firstname, lastname)
+    cursor.execute(query)
+    cnx.commit()
+    closeCursor(cursor)
+    disconnectDatabase(cnx)
+
+    
+
 parser = argparse.ArgumentParser(description='Process MoviePredictor data')
 
 parser.add_argument('context', choices=['people', 'movies'], help='Le contexte dans lequel nous allons travailler')
 
 action_subparser = parser.add_subparsers(title='action', dest='action')
 
-list_parser = action_subparser.add_parser('list', help='Liste les entitÃ©es du contexte')
+list_parser = action_subparser.add_parser('list', help='Liste les entités du contexte')
 list_parser.add_argument('--export' , help='Chemin du fichier exportÃ©')
 
-find_parser = action_subparser.add_parser('find', help='Trouve une entitÃ© selon un paramÃ¨tre')
-find_parser.add_argument('id' , help='Identifant Ã  rechercher')
+find_parser = action_subparser.add_parser('find', help='Trouve une entité selon un paramètre')
+find_parser.add_argument('id' , help='Identifant à rechercher')
+
+insert_parser = action_subparser.add_parser('insert', help='Ajoute une nouvelle entité à la table')
+insert_parser.add_argument('--firstname', help='Prénom de la personne à ajouter')
+insert_parser.add_argument('--lastname', help='Nom de la personne à ajouter')
 
 args = parser.parse_args()
 
@@ -87,6 +105,8 @@ if args.context == "people":
         people = find("people", peopleId)
         for person in people:
             printPerson(person)
+    if args.action == 'insert':
+        insertPerson(args.firstname, args.lastname)
 
 if args.context == "movies":
     if args.action == "list":  
